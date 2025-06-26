@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <cmath>
 
 int main() {
 	if (!glfwInit()) {
@@ -17,7 +18,8 @@ int main() {
 	glfwMakeContextCurrent(window);
 
 	while (!glfwWindowShouldClose(window)) {
-		glClearColor(1.0f, 0.5f, 0.5f, 1.0f);
+		float time = glfwGetTime();
+		glClearColor((sin(time) + 1.0f) / 2.0f, (sin(time * 2.0f) + 1.0f) / 2.0f, (sin(time * 4.0f) + 1.0f) / 2.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
