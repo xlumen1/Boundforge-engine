@@ -24,7 +24,7 @@ FetchContent_MakeAvailable(glad)
 # GLM
 FetchContent_Declare(
 	glm
-	GIT_REPOSITORY
+	URL
 	https://github.com/g-truc/glm/archive/refs/heads/master.zip
 )
 FetchContent_MakeAvailable(glm)
@@ -57,7 +57,7 @@ elseif(UNIX AND NOT APPLE)
 	find_package(OpenGL REQUIRED)
 	target_link_libraries(${PROJECT_NAME}
 		PRIVATE
-		${CMAKE_DL-LIBS}
+		${CMAKE_DL_LIBS}
 		OpenGL::GL
 		pthread
 	)
