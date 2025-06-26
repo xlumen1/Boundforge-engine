@@ -17,7 +17,7 @@ FetchContent_MakeAvailable(glfw)
 FetchContent_Declare(
 	glad
 	URL
-	https://github.com/Dav1ddRe/glad/archive/refs/heads/master.zip
+	https://github.com/Dav1dde/glad/archive/refs/heads/master.zip
 )
 FetchContent_MakeAvailable(glad)
 
