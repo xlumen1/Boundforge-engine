@@ -1,0 +1,23 @@
+{
+	"version": 3,
+	"configurePresets": [
+		{
+			"name": "linux-gcc",
+			"generator": "Unix Makefiles",
+			"binaryDir": "${sourceDir}/out/build/linux-gcc",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "windows-mingw",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/out/build/windows-mingw",
+			"cacheVariables": {
+				"CMAKE_C_COMPILER": "gcc",
+				"CMAKE_CXX_COMPILER": "g++",
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		}
+	]
+}
