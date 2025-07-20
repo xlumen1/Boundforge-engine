@@ -2,6 +2,7 @@
 #define SHADER_H
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -22,6 +23,7 @@ class Shader {
 		void setInt(const std::string &name, int value) const;
 		void setFloat(const std::string &name, float value) const;
 		void setMat4(const std::string &name, const float* value) const;
+		void setVec3(const std::string &name, glm::vec3 value) const;
 	private:
 		std::string loadFile(const std::string& path);
 		GLuint compileShader(GLenum type, const std::string& source);

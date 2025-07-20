@@ -1,8 +1,10 @@
 #version 330 core
 
+in vec2 vUV;
+
 out vec4 FragColor;
 
 void main() {
-    FragColor = vec4(1.0, 0.0, 0.5, 1.0); // Hot pink
+    FragColor = vec4(vUV, 0.0, 1.0); // Visualize UVs as color
 }
 

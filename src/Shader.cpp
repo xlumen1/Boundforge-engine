@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "Shader.hpp"
 
 using namespace boundforge;
 
@@ -27,7 +27,9 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
 }
 
 Shader::~Shader() {
-    glDeleteProgram(ID);
+    if (ID != 0) {
+        glDeleteProgram(ID);
+    }
 }
 
 std::string Shader::loadFile(const std::string& path) {
@@ -72,5 +74,9 @@ void Shader::setFloat(const std::string &name, float value) const {
 
 void Shader::setMat4(const std::string &name, const float* mat) const {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, mat);
+}
+
+void Shader::setVec3(const std::string &name, glm::vec3 value) const {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z);
 }
 

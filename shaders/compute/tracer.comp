@@ -1,0 +1,111 @@
+#version 430
+
+layout(local_size_x = 16, local_size_y = 16) in;
+
+uniform float uAspect;
+uniform vec3 uCamPos;
+uniform vec3 uCamDir;
+
+struct BVHNode {
+    vec3 boundsMin;
+    float pad0;
+    vec3 boundsMax;
+    float pad1;
+    int leftChild;
+    int rightChild;
+    int primitiveIndex; // Index of the rendered primative
+    int pad2;
+};
+
+struct Material {
+    vec3 albedo;
+    float roughness;
+    float metallic;
+    float pad0[3];
+};
+
+struct Triangle {
+    vec3 points[3];
+    int materialIndex;
+    int pad0[3];
+};
+
+layout(std430, binding = 0) buffer BVHIndexBuffer {
+    int bvhIndices[];
+};
+
+layout(std430, binding = 1) buffer BVHBuffer {
+    BVHNode bvhNodes[];
+};
+
+layout(std430, binding = 2) buffer MaterialBuffer {
+    Material materials[];
+};
+
+layout(std430, binding = 3) buffer TriangleBuffer {
+    Triangle tris[];
+};
+
+bool intersectTriangle(vec3 orig, vec3 dir, Triangle tri, out float t, out vec3 bary) {
+    vec3 v0 = tri.points[0];
+    vec3 v1 = tri.points[1];
+    vec3 v2 = tri.points[2];
+    vec3 edge1 = v1 - v0;
+    vec3 edge2 = v2 - v0;
+    vec3 h = cross(dir, edge2);
+    float a = dot(edge1, h);
+    if (abs(a) < 1e-6) return false;
+    float f = 1.0 / a;
+    vec3 s = orig - v0;
+    float u = f * dot(s, h);
+    if (u < 0.0 || u > 1.0) return false;
+    vec3 q = cross(s, edge1);
+    float v = f * dot(dir, q);
+    if (v < 0.0 || u + v > 1.0) return false;
+    float _t = f * dot(edge2, q);
+    if (_t > 1e-4) {
+        t = _t;
+        bary = vec3(1.0 - u - v, u, v);
+        return true;
+    }
+    return false;
+}
+
+void main() {
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(imgOutput);
+
+    // NDC coordinates [-1, 1]
+    float x = (float(pixel.x) + 0.5) / float(size.x) * 2.0 - 1.0;
+    float y = (float(pixel.y) + 0.5) / float(size.y) * 2.0 - 1.0;
+    y *= 1.0 / uAspect;
+
+    // Simple pinhole camera
+    vec3 rayOrigin = uCamPos;
+    vec3 rayDir = normalize(uCamDir + vec3(x, y, 0.0));
+
+    float minT = 1e30;
+    int hitTri = -1;
+    vec3 hitBary = vec3(0);
+
+    // Brute-force intersection with all triangles
+    for (int i = 0; i < tris.length(); ++i) {
+        float t;
+        vec3 bary;
+        if (intersectTriangle(rayOrigin, rayDir, tris[i], t, bary)) {
+            if (t < minT) {
+                minT = t;
+                hitTri = i;
+                hitBary = bary;
+            }
+        }
+    }
+
+    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+    if (hitTri >= 0) {
+        int matIdx = tris[hitTri].materialIndex;
+        color.rgb = materials[matIdx].albedo;
+    }
+
+    imageStore(imgOutput, pixel, color);
+}
